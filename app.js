@@ -10,6 +10,8 @@ const logger = require('morgan');
 const serveFavicon = require('serve-favicon');
 const mongoose = require('mongoose');
 const baseRouter = require('./routes/base');
+const expressSession = require('express-session');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 
@@ -20,6 +22,20 @@ app.use(serveFavicon(path.join(__dirname, 'public/images', 'favicon.ico')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  expressSession({
+    secret: 'ertaersaertsaersert',
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24
+    },
+    store: new MongoStore({
+      mongoUrl: process.env.MONGODB_URI,
+      ttl: 60 * 60 * 24
+    })
+  })
+);
 
 app.use('/', baseRouter);
 
